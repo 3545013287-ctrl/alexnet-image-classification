@@ -1,0 +1,27 @@
+# 数据集（体积大 / 第三方版权，不入库）
+dataset/
+
+# 训练权重
+checkpoints/*.pth
+checkpoints/*.pt
+*.pth
+*.pt
+*.onnx
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.agents/
+.codex/
+.DS_Store
+Thumbs.db
+
+# 临时输出
+*.tmp
+~$*

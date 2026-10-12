@@ -1,0 +1,179 @@
+
+1. train.py
+-----------
+
+Basic training: ImageNet pretrained AlexNet, freeze all convolution layers, train classifier layers only.
+
+    python3 train.py
+
+Set common training parameters:
+
+    python3 train.py --epochs 10 --batch-size 32 --lr 1e-3
+
+Task 1: feature extraction, train fully connected classifier only.
+
+    python3 train.py --epochs 5 --batch-size 32 --lr 1e-3 --freeze-conv-layers 5
+
+Task 2: full fine-tuning, train convolution layers and fully connected layers.
+
+    python3 train.py --epochs 10 --batch-size 16 --lr 1e-4 --freeze-conv-layers 0
+
+Equivalent shortcut for full fine-tuning:
+
+    python3 train.py --epochs 10 --batch-size 16 --lr 1e-4 --unfreeze-features
+
+Freeze only the first N convolution layers:
+
+    python3 train.py --freeze-conv-layers 0
+    python3 train.py --freeze-conv-layers 1
+    python3 train.py --freeze-conv-layers 2
+    python3 train.py --freeze-conv-layers 3
+    python3 train.py --freeze-conv-layers 4
+    python3 train.py --freeze-conv-layers 5
+
+Meaning:
+
+    0: freeze no convolution layers, train the whole network.
+    1: freeze conv1 only.
+    2: freeze conv1 and conv2.
+    3: freeze conv1, conv2, and conv3.
+    4: freeze conv1, conv2, conv3, and conv4.
+    5: freeze all convolution layers, train classifier only.
+
+Data augmentation choices:
+
+    none
+    random_crop
+    hflip
+    color_jitter
+    rotation
+
+No random augmentation:
+
+    python3 train.py --augment none
+
+Default basic augmentation:
+
+    python3 train.py --augment random_crop hflip
+
+Stronger augmentation:
+
+    python3 train.py --augment random_crop hflip color_jitter rotation
+
+Example comparison experiments:
+
+    python3 train.py --epochs 5 --lr 1e-3 --freeze-conv-layers 5 --augment none
+    python3 train.py --epochs 5 --lr 1e-3 --freeze-conv-layers 5 --augment random_crop hflip
+    python3 train.py --epochs 5 --lr 1e-3 --freeze-conv-layers 5 --augment random_crop hflip color_jitter rotation
+    python3 train.py --epochs 10 --lr 1e-4 --batch-size 16 --freeze-conv-layers 0 --augment random_crop hflip
+
+Use a different dataset root:
+
+    python3 train.py --data-dir dataset
+
+Use a different checkpoint output folder:
+
+    python3 train.py --output-dir checkpoints
+
+Training output files:
+
+    checkpoints/best_alexnet.pth
+    checkpoints/last_alexnet.pth
+    checkpoints/class_to_idx.json
+
+
+2. evaluate.py
+--------------
+
+Evaluate best checkpoint on the whole test set:
+
+    python3 evaluate.py
+
+Choose checkpoint:
+
+    python3 evaluate.py --checkpoint checkpoints/best_alexnet.pth
+    python3 evaluate.py --checkpoint checkpoints/last_alexnet.pth
+
+Set batch size:
+
+    python3 evaluate.py --batch-size 32
+    python3 evaluate.py --batch-size 64
+
+Use a different dataset root:
+
+    python3 evaluate.py --data-dir dataset
+
+Typical complete evaluation command:
+
+    python3 evaluate.py --checkpoint checkpoints/best_alexnet.pth --batch-size 32
+
+
+3. predict.py
+-------------
+
+Predict one image:
+
+    python3 predict.py dataset/test/car/n03770679_9027.JPEG
+
+Predict one image with top-3 probabilities:
+
+    python3 predict.py dataset/test/car/n03770679_9027.JPEG --topk 3
+
+Predict one image with top-4 probabilities:
+
+    python3 predict.py dataset/test/car/n03770679_9027.JPEG --topk 4
+
+Choose checkpoint:
+
+    python3 predict.py dataset/test/car/n03770679_9027.JPEG --checkpoint checkpoints/best_alexnet.pth
+
+Save prediction visualization:
+
+    python3 predict.py dataset/test/car/n03770679_9027.JPEG --visualize
+
+Choose visualization output path:
+
+    python3 predict.py dataset/test/car/n03770679_9027.JPEG --visualize --vis-output outputs/car_predict.png
+
+Show fewer feature channels per convolution layer:
+
+    python3 predict.py dataset/test/car/n03770679_9027.JPEG --visualize --feature-channels 8
+
+Show more feature channels per convolution layer:
+
+    python3 predict.py dataset/test/car/n03770679_9027.JPEG --visualize --feature-channels 32
+
+
+4. gradcam.py
+-------------
+
+Generate Grad-CAM heatmap for the predicted class:
+
+    python3 gradcam.py dataset/test/car/n03770679_9027.JPEG
+
+Choose output path:
+
+    python3 gradcam.py dataset/test/car/n03770679_9027.JPEG --output outputs/car_gradcam.png
+
+Choose checkpoint:
+
+    python3 gradcam.py dataset/test/car/n03770679_9027.JPEG --checkpoint checkpoints/best_alexnet.pth
+
+Generate Grad-CAM for a specified class:
+
+    python3 gradcam.py dataset/test/car/n03770679_9027.JPEG --class-name car
+    python3 gradcam.py dataset/test/dog/n02096051_8630.JPEG --class-name dog
+    python3 gradcam.py dataset/test/bottle/n03062245_1555.JPEG --class-name bottle
+    python3 gradcam.py dataset/test/sombrero/n04259630_4830.JPEG --class-name sombrero
+
+Adjust heatmap opacity:
+
+    python3 gradcam.py dataset/test/car/n03770679_9027.JPEG --alpha 0.30
+    python3 gradcam.py dataset/test/car/n03770679_9027.JPEG --alpha 0.60
+
+Adjust weak localization box threshold:
+
+    python3 gradcam.py dataset/test/car/n03770679_9027.JPEG --box-threshold 0.45
+    python3 gradcam.py dataset/test/car/n03770679_9027.JPEG --box-threshold 0.65
+
+
